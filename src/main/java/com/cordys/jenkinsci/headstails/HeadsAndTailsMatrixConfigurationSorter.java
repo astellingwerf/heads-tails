@@ -1,5 +1,6 @@
 package com.cordys.jenkinsci.headstails;
 
+import com.cordys.jenkinsci.ConsistentMatrixConfigurationSorter;
 import hudson.Extension;
 import hudson.matrix.Axis;
 import hudson.matrix.MatrixConfiguration;
@@ -10,7 +11,7 @@ import org.kohsuke.stapler.DataBoundConstructor;
 
 import java.util.Comparator;
 
-public class HeadsAndTailsMatrixConfigurationSorter extends hudson.matrix.MatrixConfigurationSorter {
+public class HeadsAndTailsMatrixConfigurationSorter extends ConsistentMatrixConfigurationSorter {
     private final Axis axis;
     private final String heads;
     private final String tails;
@@ -62,16 +63,12 @@ public class HeadsAndTailsMatrixConfigurationSorter extends hudson.matrix.Matrix
             FormValidation.error("Axis '" + axis + "' undefined in project.");
     }
 
-    public int compare(MatrixConfiguration matrixConfigurationA, MatrixConfiguration matrixConfigurationB) {
+    @Override
+    public int compareConfigurations(MatrixConfiguration matrixConfigurationA, MatrixConfiguration matrixConfigurationB) {
         final String valueA = matrixConfigurationA.getCombination().get(axis);
         final String valueB = matrixConfigurationB.getCombination().get(axis);
 
-        final int compare = getNameComparator().compare(valueA, valueB);
-        // Keep behavior consistent
-        if (compare == 0) {
-            return matrixConfigurationA.getCombination().compareTo(matrixConfigurationB.getCombination());
-        }
-        return compare;
+        return getNameComparator().compare(valueA, valueB);
     }
 
     Comparator<String> getNameComparator() {

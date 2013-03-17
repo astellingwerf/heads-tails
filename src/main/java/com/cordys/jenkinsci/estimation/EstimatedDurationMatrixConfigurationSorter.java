@@ -1,46 +1,40 @@
 package com.cordys.jenkinsci.estimation;
 
+import com.cordys.jenkinsci.ConsistentMatrixConfigurationSorter;
 import hudson.Extension;
 import hudson.matrix.MatrixConfiguration;
 import hudson.matrix.MatrixConfigurationSorterDescriptor;
-import hudson.matrix.MatrixConfigurationSorter;
 import hudson.matrix.MatrixProject;
 import hudson.util.FormValidation;
-
 import org.kohsuke.stapler.DataBoundConstructor;
 
-public class EstimatedDurationMatrixConfigurationSorter extends MatrixConfigurationSorter
-{
+public class EstimatedDurationMatrixConfigurationSorter extends ConsistentMatrixConfigurationSorter {
 
-	private final boolean reversed;
+    private final boolean reversed;
 
-	public boolean isReversed() {
-		return reversed;
-	}
+    @DataBoundConstructor
+    public EstimatedDurationMatrixConfigurationSorter(final boolean reversed) {
+        this.reversed = reversed;
+    }
 
-	@DataBoundConstructor
-	public EstimatedDurationMatrixConfigurationSorter(final boolean reversed) {
-		this.reversed = reversed;
-	}
+    public boolean isReversed() {
+        return reversed;
+    }
 
-	public int compare(final MatrixConfiguration o1, final MatrixConfiguration o2) {
-		final int signum = Long.signum(o1.getEstimatedDuration() - o2.getEstimatedDuration()) * (reversed ? -1 : 1);
-		if (signum == 0) {
-			return o1.getCombination().compareTo(o2.getCombination());
-		}
-		return signum;
-	}
+    @Override
+    public int compareConfigurations(final MatrixConfiguration o1, final MatrixConfiguration o2) {
+        return Long.signum(o1.getEstimatedDuration() - o2.getEstimatedDuration()) * (reversed ? -1 : 1);
+    }
 
-	@Override
-	public void validate(final MatrixProject arg0) throws FormValidation {
-	}
+    @Override
+    public void validate(final MatrixProject arg0) throws FormValidation {
+    }
 
-	@Extension
-	public static class DescriptorImpl extends MatrixConfigurationSorterDescriptor
-	{
-		@Override
-		public String getDisplayName() {
-			return "Estimated duration";
-		}
-	}
+    @Extension
+    public static class DescriptorImpl extends MatrixConfigurationSorterDescriptor {
+        @Override
+        public String getDisplayName() {
+            return "Estimated duration";
+        }
+    }
 }
